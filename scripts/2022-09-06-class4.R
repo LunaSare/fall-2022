@@ -11,6 +11,8 @@ download.file("https://ndownloader.figshare.com/files/2292169",
               destfile = "data-raw/my-data-september.csv")
 
 # Function from tidyverse package
+
+
 install.packages("tidyverse")
 
 library(tidyverse)
@@ -57,3 +59,6 @@ head(surveys) # first 6 rows
 # use the - (exclude)
 rows_2_exclude <- -(7:nrow(surveys))
 surveys[rows_2_exclude, ]
+
+
+summary(my_data_table)

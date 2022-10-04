@@ -1,0 +1,123 @@
+---
+title: "uhuru dataset"
+author: "Luna L Sanchez Reyes"
+date: "2022-10-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      root.dir = "/Users/lunasare/Desktop/data-science-course/fall-2022/")
+
+```
+
+### 1. Describing the data that we are using
+
+We are using the dataset from [this study](https://esapubs.org/archive/ecol/E095/064/metadata.php)
+
+Add a picture of an Acacia
+
+### 2. Reading the data table into R
+
+First make sure that we are in the correct working directory, we use function `getwd()`
+
+```{r}
+getwd()
+```
+If it is not correct set the working directory in the setup chunk above
+
+
+```{r}
+acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "\t")
+```
+### 3. Explore our data set
+
+```{r}
+head(acacia)
+summary(acacia)
+colnames(acacia)
+
+```
+
+Make sure that everuthing that is a number, is actually numeric.
+
+One way to do this is withthe function `summary`, and checking at the type of data on each column visually.
+
+Another way is using the type function
+
+```{r}
+typeof(acacia[,"HEIGHT"])
+
+acacia$HEIGHT
+```
+
+We identified a column that has problematic data. We need to fix it!
+
+We are goinf to read the data table again, but we are gonna assign `NA` to the "dead" value that we do not want in our "HEIGHT" column.
+
+```{r}
+acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", 
+                   sep = "\t", 
+                   na.strings = "dead")
+
+```
+
+
+Let's check if this worked!
+
+```{r}
+acacia$HEIGHT
+typeof(acacia$HEIGHT)
+```
+
+
+### 4. Visualize our data
+
+For this, we are using the `ggplot` package.
+Let's install it and load it:
+
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+```
+
+Now we are gonna create our first plotting layer with the function `ggplot`. 
+
+```{r}
+colnames(acacia)
+acacia$CIRC
+```
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
+  geom_point(size = 1, color = "blue", alpha = 0.1) +
+  labs(x = "Circumference", y = "Height", title = "Data from UHURU Acacia survey")
+
+
+```
+To rescale the plotting of the axis to log scale we use the function `scale_y_log_10()`
+
+```{r}
+ggplot( data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
+  geom_point(size =1, color = "purple", alpha = 0.4) +
+  scale_x_log10() +
+  scale_y_log10()
+```
+We have the information on experimental treatment in th etreatment column:
+
+```{r}
+acacia$TREATMENT
+```
+
+Let's add information on treatment to our plot:
+
+```{r}
+ggplot(data = acacia, mapping = aes (x = CIRC, y = HEIGHT, color = TREATMENT)) +
+  geom_point(size = 2, alpha = 0.5)
+
+```
+
+
+### 4.2 Visualize a statistical analysis of correlation
+
+
