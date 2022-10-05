@@ -6,10 +6,10 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      root.dir = "/Users/lunasare/Desktop/data-science-course/fall-2022/")
-
+knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
 
 ### 1. Describing the data that we are using
 
@@ -17,33 +17,43 @@ We are using the dataset from [this study](https://esapubs.org/archive/ecol/E095
 
 Add a picture of an Acacia
 
-### 2. Reading the data table into R
+### 2. Read the data set into R
 
-First make sure that we are in the correct working directory, we use function `getwd()`
+#### 2.1 Get the working directory of my R chunks
 
-```{r}
-getwd()
-```
-If it is not correct set the working directory in the setup chunk above
-
+The working directory of an Rmd file is not the same as the working directory of the Rstudio project you are in. We can check that by running the following:
 
 ```{r}
-acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "\t")
+r_proj_wd <- "/Users/lunasare/Desktop/data-science-course/fall-2022"
+r_chunk_wd <- getwd()
+r_proj_wd == r_chunk_wd
 ```
-### 3. Explore our data set
+As you can see, the working directory from my R project and the one used in my R chunks in an Rmd file are not the same.
+
+The working directory of an R chunk is equal to the path where the Rmd file is in, in my case, it is `r_chunk_wd`.
+This is nested withing my project directory, keep this in mind for when you have to provide the path of a file ;)
+
+#### 2.2 Read the data set into R and create an object
+
+```{r}
+acacia <- read.csv(file = "../data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "\t")
+```
+
+### 3. Explore the data set
 
 ```{r}
 head(acacia)
 summary(acacia)
 colnames(acacia)
-
+sapply(acacia, class)
+View(acacia)
 ```
 
-Make sure that everuthing that is a number, is actually numeric.
+Make sure that everything that is a number is actually `typeof` numeric or double or integer.
 
-One way to do this is withthe function `summary`, and checking at the type of data on each column visually.
+One way to do this is with the function `summary`, and checking at the type of data on each column visually.
 
-Another way is using the type function
+Another way is using the `typeof()` function:
 
 ```{r}
 typeof(acacia[,"HEIGHT"])
@@ -53,7 +63,9 @@ acacia$HEIGHT
 
 We identified a column that has problematic data. We need to fix it!
 
-We are goinf to read the data table again, but we are gonna assign `NA` to the "dead" value that we do not want in our "HEIGHT" column.
+### 3.2 Assigning `NA` to missing/incorrect values 
+
+We are going to read the data table again, but we are gonna assign `NA` to the "dead" value that we do not want in our "HEIGHT" column.
 
 ```{r}
 acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", 
@@ -63,17 +75,18 @@ acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022
 ```
 
 
-Let's check if this worked!
+Let's check if this worked:
 
 ```{r}
 acacia$HEIGHT
 typeof(acacia$HEIGHT)
+class(acacia$HEIGHT)
 ```
 
 
 ### 4. Visualize our data
 
-For this, we are using the `ggplot` package.
+For this, we are using the `ggplot2` package.
 Let's install it and load it:
 
 ```{r}
@@ -95,7 +108,7 @@ ggplot(data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
 
 
 ```
-To rescale the plotting of the axis to log scale we use the function `scale_y_log_10()`
+To rescale the plotting of the axis to log scale we use the function `scale_y_log_10()` and `scale_x_log10()`:
 
 ```{r}
 ggplot( data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
@@ -103,13 +116,13 @@ ggplot( data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
   scale_x_log10() +
   scale_y_log10()
 ```
-We have the information on experimental treatment in th etreatment column:
+We have the information on experimental treatment in the column named "TREATMENT":
 
 ```{r}
 acacia$TREATMENT
 ```
 
-Let's add information on treatment to our plot:
+Let's add information about treatment to our plot:
 
 ```{r}
 ggplot(data = acacia, mapping = aes (x = CIRC, y = HEIGHT, color = TREATMENT)) +
