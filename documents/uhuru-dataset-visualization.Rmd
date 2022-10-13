@@ -9,8 +9,6 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
 ### 1. Describing the data that we are using
 
 We are using the dataset from [this study](https://esapubs.org/archive/ecol/E095/064/metadata.php)
@@ -21,22 +19,27 @@ Add a picture of an Acacia
 
 #### 2.1 Get the working directory of my R chunks
 
-The working directory of an Rmd file is not the same as the working directory of the Rstudio project you are in. We can check that by running the following:
+The working directory of an Rmd file is not the same as the working directory of the Rstudio project you are in. We can check that by running the following.
+
+How do I test where the computer is?
 
 ```{r}
 r_proj_wd <- "/Users/lunasare/Desktop/data-science-course/fall-2022"
 r_chunk_wd <- getwd()
 r_proj_wd == r_chunk_wd
+r_chunk_wd
 ```
+
 As you can see, the working directory from my R project and the one used in my R chunks in an Rmd file are not the same.
 
-The working directory of an R chunk is equal to the path where the Rmd file is in, in my case, it is `r_chunk_wd`.
-This is nested withing my project directory, keep this in mind for when you have to provide the path of a file ;)
+The working directory of an R chunk is equal to the path where the Rmd file is in, in my case, it is `r_chunk_wd`. This is nested withing my project directory, keep this in mind for when you have to provide the path of a file ;)
 
 #### 2.2 Read the data set into R and create an object
 
 ```{r}
+# getwd()
 acacia <- read.csv(file = "../data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "\t")
+acacia
 ```
 
 ### 3. Explore the data set
@@ -45,6 +48,10 @@ acacia <- read.csv(file = "../data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "
 head(acacia)
 summary(acacia)
 colnames(acacia)
+rownames(acacia)
+class(acacia$SURVEY)
+# the sapply function allows to apply a function to a list of objects
+# a data frame is a list of vectors of the same length
 sapply(acacia, class)
 View(acacia)
 ```
@@ -63,17 +70,18 @@ acacia$HEIGHT
 
 We identified a column that has problematic data. We need to fix it!
 
-### 3.2 Assigning `NA` to missing/incorrect values 
+## Cleaning our raw data
+
+### 3.2 Assigning `NA` to missing/incorrect values
 
 We are going to read the data table again, but we are gonna assign `NA` to the "dead" value that we do not want in our "HEIGHT" column.
 
 ```{r}
-acacia <- read.csv(file = "/Users/lunasare/Desktop/data-science-course/fall-2022/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", 
+acacia <- read.csv(file = "../data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt", 
                    sep = "\t", 
                    na.strings = "dead")
 
 ```
-
 
 Let's check if this worked:
 
@@ -83,31 +91,40 @@ typeof(acacia$HEIGHT)
 class(acacia$HEIGHT)
 ```
 
-
 ### 4. Visualize our data
 
-For this, we are using the `ggplot2` package.
-Let's install it and load it:
+For this, we are using the `ggplot2` package. Let's install it and load it:
 
 ```{r}
 # install.packages("ggplot2")
 library(ggplot2)
 ```
 
-Now we are gonna create our first plotting layer with the function `ggplot`. 
+Now we are gonna create our first plotting layer with the function `ggplot`.
 
 ```{r}
 colnames(acacia)
 acacia$CIRC
 ```
 
+The ggplot function creates a blank canvas. The canvas contains our data. and the variables that we want to plot.
+
+A scatter plot can be created with the function `geom_point()`
+
+```{r}
+colors()
+```
+
+```{r}
+?pch
+```
+
 ```{r}
 ggplot(data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
-  geom_point(size = 1, color = "blue", alpha = 0.1) +
+  geom_point(size = 1, color = "tomato", alpha = 0.8, shape = 11) +
   labs(x = "Circumference", y = "Height", title = "Data from UHURU Acacia survey")
-
-
 ```
+
 To rescale the plotting of the axis to log scale we use the function `scale_y_log_10()` and `scale_x_log10()`:
 
 ```{r}
@@ -116,6 +133,9 @@ ggplot( data = acacia, mapping = aes(x = CIRC, y = HEIGHT)) +
   scale_x_log10() +
   scale_y_log10()
 ```
+
+## Grouping data:
+
 We have the information on experimental treatment in the column named "TREATMENT":
 
 ```{r}
@@ -130,7 +150,178 @@ ggplot(data = acacia, mapping = aes (x = CIRC, y = HEIGHT, color = TREATMENT)) +
 
 ```
 
+# Subplots or facets
 
-### 4.2 Visualize a statistical analysis of correlation
+The function to create subplots by a third variable is called `facet_wrap()`
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = CIRC, y = HEIGHT, color = TREATMENT)) +
+  geom_point() +
+  facet_wrap(~TREATMENT)
+```
+
+A little interpretation of what is going on here...
+
+How to test these hypotheses?
+
+## Model fitting functions
+
+The `geom_smooth()` function alloes to fit linear models to a set of points
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = CIRC, y = HEIGHT, color = TREATMENT, linetype = TREATMENT)) +
+  geom_point() +
+  geom_smooth(method = "loess") + 
+  facet_wrap(~TREATMENT)
+```
+
+## Histograms and barplots
+
+For bar plots we use the geom_bar() function:
+
+```{r}
+ggplot(data = acacia, aes(x = TREATMENT)) +
+  geom_bar()
+```
+
+If we want to see the distribution of a continuous variable we use the geom_histogram() function:
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = HEIGHT, fill = TREATMENT)) +
+  geom_histogram(bins = 20, color = "black")
+```
+
+## Layer multiple data from the same or different data sets
+
+```{r}
+ggplot() +
+  geom_point(data = acacia,
+             mapping = aes(x = CIRC, y = HEIGHT,
+                           color = TREATMENT)) +
+  geom_smooth(data = acacia, 
+              mapping = aes(x = CIRC, y = HEIGHT)) +
+  geom_histogram(data = acacia, 
+                 mapping = aes(x = CIRC, color = TREATMENT), alpha = 0.2)
+
+```
+
+# Save images as files
+
+```{r}
+ggsave(filename = "acacia_by_treatment.pdf", width = 5, height = 3)
+```
+
+# Exercise 1
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = CIRC, y = AXIS1, color = ANT)) +
+  geom_point() +
+  labs(x = "Circumference", y = "Canopy Diameter") +
+  facet_wrap(~ANT) +
+    geom_smooth()
+```
+
+Exercise 2.
+
+```{r}
+ggplot(data = acacia, mapping = aes(x = ANT)) +
+  geom_bar()
+```
+```{r}
+ggplot(data = acacia, mapping = aes(x = HEIGHT)) +
+  geom_histogram(binwidth = 0.08) +
+  labs(x = "Height (m)", y = "Number of Acacia")
+```
 
 
+```{r}
+ggplot(data = acacia) +
+  geom_histogram(mapping = aes(x = AXIS1), 
+                 fill = "red", alpha = 0.3, bins = 10) +
+  geom_histogram(mapping = aes(x = AXIS2), 
+                 fill = "black", alpha = 0.3, bins = 10) +
+  facet_wrap(~TREATMENT)
+```
+
+
+Exercise 3:
+
+```{r}
+library(readr)
+trees <- read_tsv("../data-raw/TREE_SURVEYS.txt",
+               col_types = list(HEIGHT = col_double(),
+                                AXIS_2 = col_double()))
+View(trees)
+```
+
+```{r}
+trees$canopy_area <- trees$AXIS_1 * trees$AXIS_2
+
+trees_subset <- trees[, c("SURVEY", "YEAR", "SITE", "canopy_area")]
+head(trees_subset)
+```
+
+```{r}
+colnames(trees)
+trees$canopy_area
+
+ggplot(data = trees, mapping = aes(x= canopy_area, y = HEIGHT), color = TREATMENT) +
+  geom_point() + 
+  facet_wrap(~SPECIES)
+```
+
+```{r}
+which(trees$AXIS_1 > 20)
+which(trees$AXIS_2 > 20)
+trees[3839]
+trees[(trees$AXIS_2 > 20),]
+
+which(trees$AXIS_1 > 20)
+which(trees$AXIS_2 > 20)
+to_remove <- which(trees$AXIS_1 > 20 | trees$AXIS_2 > 20)
+
+trees <- trees[-to_remove,]
+to_remove_again <- which(is.na(trees$SPECIES))
+trees <- trees[-to_remove_again,]
+```
+
+```{r}
+ggplot(data = trees, mapping = aes(x= canopy_area, y = HEIGHT, color = TREATMENT)) +
+  geom_point() +
+  facet_wrap(~SPECIES)
+```
+
+```{r}
+library(dplyr)
+trees %>%
+  group_by(YEAR, SPECIES) %>%
+  summarize(species_abundance = n()) -> abundance
+
+abundance
+```
+```{r}
+ggplot(data = abundance, mapping = aes(x = YEAR, y = species_abundance)) +
+  geom_point() + 
+  geom_line() +
+  facet_wrap(~SPECIES, scales = "free_y")
+
+test1 <- trees$SPECIES == "Croton" & trees$YEAR == 2013
+sum(test1)
+trees[which(test1),]
+```
+
+
+Exercise 4
+
+```{r}
+ggplot() + 
+  geom_point(data = trees, mapping = aes(x= CIRC, y = HEIGHT), color = "gray", alpha = 0.3) +
+  geom_smooth(data = trees, mapping = aes(x= CIRC, y = HEIGHT), color = "black", method = "lm") +
+  scale_x_log10() +
+  scale_y_log10() +
+  geom_point(data = acacia, mapping = aes(x= CIRC, y = HEIGHT), color = "red", alpha = 0.3) +
+  geom_smooth(data = acacia, mapping = aes(x= CIRC, y = HEIGHT), color = "red", method = "lm") +
+  scale_x_log10() +
+  scale_y_log10()
+  
+```
