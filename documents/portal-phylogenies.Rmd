@@ -1,0 +1,140 @@
+---
+title: "portal phylogenies"
+author: "Luna L Sanchez Reyes"
+date: "2022-10-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Add an intro to the newick format
+
+# The package `ape`
+
+```{r}
+# install.packages("ape")
+library(ape)
+```
+
+To read a newick tree from a local file:
+
+```{r}
+portal_tree <- read.tree(file = "../data-raw/portal-tree.tre")
+portal_tree
+```
+
+Read a newick from a URL
+
+```{r}
+small_tree <- read.tree(file = "http://ape-package.ird.fr/APER/APER2/primfive.tre")
+small_tree
+```
+
+# The structure of a tree in R
+
+```{r}
+class(portal_tree)
+surveys <- read.csv(file = "../data-raw/surveys.csv")
+class(surveys)
+length(portal_tree)
+length(surveys)
+colnames(surveys)
+colnames(portal_tree)
+names(portal_tree)
+portal_tree$Nnode
+portal_tree["tip.label"]
+head(portal_tree[[3]])
+summary(portal_tree)
+str(portal_tree)
+class(portal_tree$edge)
+head(portal_tree$edge)
+```
+
+```{r}
+str(surveys)
+```
+
+## Plotting a phylogenetic tree
+
+```{r}
+plot.phylo(x = portal_tree)
+```
+
+An extension of ggplot for phylogenetic visualization: `ggtree`
+To install packages from th Bioconductor repo, we need a CRAN package called BiocManager
+
+```{r, eval=FALSE}
+install.packages("BiocManager")
+install("ggtree")
+```
+
+```{r}
+library(BiocManager)
+library(ggtree)
+ggtree(portal_tree)
+```
+
+This is equivalent to:
+
+```{r}
+ggplot(portal_tree, aes(x, y)) +
+  geom_tree() +
+  theme_tree()
+```
+
+Add a scale use the function geom_treescale():
+
+```{r}
+ggtree(portal_tree) +
+  geom_treescale()
+```
+Exercise: Plot the small tree of five species of primates and include a scale. What is the difference in structure between the two trees?
+```{r}
+ggtree(small_tree) +
+  geom_treescale()
+```
+```{r}
+portal_tree
+small_tree
+names(portal_tree)
+```
+```{r}
+names(small_tree)
+```
+- A difference in number of tips (43 vs 5)
+- An `edge.length` in `small_tree`, but it has no node labels
+
+```{r}
+small_tree$edge.length
+small_tree$node.label
+head(portal_tree$node.label)
+```
+
+## Add tip labels and node labels
+
+Because a plot is nothing with no labels:
+
+```{r}
+ggtree(portal_tree) +
+  geom_treescale() +
+  geom_tiplab(size = 1, color = "purple", fontface = "italic")
+```
+
+
+Add a limit to the plot so we can see the labels fully:
+
+```{r}
+ggtree(portal_tree) +
+  geom_tiplab(size = 1, color = "purple", fontface = "italic") +
+  xlim(NA,200)
+```
+
+```{r}
+library(ape)
+branching.times(small_tree)
+branching.times(portal_tree)
+```
+
+# Homework: Make a plot for small_tree with scale, tip labels, and an appropriate xlim size to display the species names fully
