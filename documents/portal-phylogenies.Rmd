@@ -135,6 +135,103 @@ ggtree(portal_tree) +
 library(ape)
 branching.times(small_tree)
 branching.times(portal_tree)
+
 ```
 
 # Homework: Make a plot for small_tree with scale, tip labels, and an appropriate xlim size to display the species names fully
+
+```{r}
+ggtree(small_tree) +
+  geom_tiplab(size = 5, color = "gray", fontface = "italic") +
+  xlim(NA,1.2) +
+  geom_nodelab(size = 3, color = "blue")
+```
+
+```{r}
+library(ggtree)
+ggtree(portal_tree, layout = "fan", open.angle = 45) -> plot1
+```
+```{r}
+# install.packages("aplot")
+
+library(aplot)
+plot_list(plot1, plot1, labels = c("Circular Tree of Portal Species", "The same"), tag_size = 7)
+```
+Exercise: Tree representation
+
+Part 1:
+```{r}
+p1 <- ggtree(portal_tree, layout="rectangular")
+p2 <- ggtree(portal_tree, layout="ape")
+p3 <- ggtree(portal_tree, layout="roundrect")
+p4 <- ggtree(portal_tree, layout="slanted")
+p5 <- ggtree(portal_tree, layout="ellipse")
+p6 <- ggtree(portal_tree, layout="dendrogram") # pay attention to spelling on the option!
+p7 <- ggtree(portal_tree, layout="circular")
+p8 <- ggtree(portal_tree, layout="radial")
+p9 <- ggtree(portal_tree, layout="fan", open.angle = 945)
+p10 <- ggtree(portal_tree, layout="equal_angle")
+p11 <- ggtree(portal_tree, layout="daylight")
+p12 <- ggtree(portal_tree, layout="unrooted")
+```
+
+Part 2:
+Create a subplot for each tree.
+```{r}
+plot_list(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, tag_levels = "a")
+```
+Part 3: Is the tree representation rooted or unrooted?
+
+```{r}
+# create a vector of labels for my 12 plots:
+my_labels <- paste(letters[1:12], "=", "rooted")
+my_labels
+plot_list(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
+          labels = my_labels, tag_size = 5)
+```
+
+
+```{r}
+taxonomy <- read.csv(file = "../data-raw/portal-species-taxonomy.csv")
+species <- read.csv(file = "../data-raw/species.csv")
+surveys <- read.csv(file = "../data-raw/surveys.csv")
+```
+
+Join the data table to a tree:
+
+```{r}
+intersect(colnames(species), colnames(surveys))
+library(dplyr)
+inner_join(species, surveys, by = "species_id")
+```
+```{r}
+portal_tree
+```
+```{r}
+left_join(portal_tree, taxonomy, by = "label")
+## the join failed!!
+# we need to check our species labels on teh tree and on the data table:
+head(taxonomy)
+taxonomy$label
+```
+Replace the tip labels from our original portal tree with a new vector of tip labels:
+```{r}
+tip_labels <- portal_tree$tip.label
+tip_labels
+tip_labels_cleaned <- gsub("_", " ", tip_labels)
+portal_tree[["tip.label"]] <- tip_labels_cleaned
+portal_tree$tip.label
+```
+
+```{r}
+tree_data <- left_join(portal_tree, taxonomy, by = "label")
+tree_data
+class(tree_data)
+```
+Color by a variable in our column:
+```{r}
+ggtree(tr = tree_data, mapping = aes(color = taxa)) +
+  geom_tiplab(size = 2.5, fontface = "italic") +
+  xlim(0,100)
+ggsave(filename = "../fig/portal-tree-1.png")
+```
