@@ -285,14 +285,15 @@ Create two different tree plots using taxa and common name to color the tips of 
 
 ```{r}
 small_tree <- read.tree(file = "http://ape-package.ird.fr/APER/APER2/primfive.tre")
+small_tree$tip.label
 branching.times(small_tree)
 ggtree(small_tree) + 
   xlim(0, 1.5) +
   geom_tiplab(fontface = "italic")
 
 label <- small_tree$tip.label[1:2]
-taxa <- c("Hominini", "Hominidae")
-common_name <- c("Human", "Orangutan")
+taxa <- c("Hominini", "Hominidae", "Ponginae", "Flowering plants", "Cats", "Dogs")
+common_name <- c("Human", "Orangutan", "Macaque" )
 
 data.frame(label, taxa, common_name)
 
@@ -380,7 +381,8 @@ taxonomy_weight <- full_join(taxonomy, spp_weight)
 taxonomy_weight
 
 tree_join <- left_join(portal_tree, taxonomy_weight, by = "label")
-
+portal_tree$node.label
+has.singles(portal_tree)
 tree_join
 
 ggtree(tree_join) + 
@@ -390,7 +392,15 @@ ggtree(tree_join) +
                               size = mean_weight,
                               color = taxa))
 ```
+```{r}
+surveys %>% 
+  filter(!is.na(hindfoot_length)) %>% 
+  group_by(species_id) %>% 
+  summarise(mean_hindfoot_length = mean(hindfoot_length)) -> species_hindfoot_length
 
+taxonomy_means <- full_join(species_weight, species_hindfoot_length) %>% 
+  full_join(taxonomy)
+```
 
 
 
