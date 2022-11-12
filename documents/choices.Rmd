@@ -1,0 +1,256 @@
+---
+title: "Making choices"
+author: "Luna L Sanchez Reyes"
+date: "2022-11-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Logical and conditional statements
+
+Both of these return `TRUE` or `FALSE` values, which are values of "logical" types or class.
+
+Some examples of logical statements (usually called comparison between values):
+```{r}
+1 == 1
+1 > 1
+1 < 1
+1 >= 1
+1 <= 1
+
+"a" == "a"
+"a" < "a"
+"a" < "b"
+"b" < "c"
+"apple" < "banana"
+"apple" < "airplane"
+
+c(1, 2, 3, 4, 1, 1) == 1
+
+letters
+letters < "m"
+letters[letters < "m"]
+LETTERS
+
+TRUE == FALSE
+```
+
+Load data from the UHURU data set:
+
+```{r}
+surveys <- read.csv("../data-raw/surveys.csv")
+species <- read.csv("../data-raw/species.csv")
+
+colnames(surveys)
+```
+Combine the two tables:
+```{r}
+library(dplyr)
+intersect(colnames(surveys), colnames(species))
+combined <- dplyr::inner_join(surveys, species, by = "species_id")
+
+colnames(combined)
+```
+Extract the "year" column:
+```{r}
+str(combined)
+dim(combined)
+combined$year
+combined[, "year"]
+combined["year"]
+combined[4]
+
+combined$year == 1977
+combined$genus == "Dipodomys"
+data.frame(combined$genus, combined$genus == "Dipodomys")
+```
+
+A vector that tests speciess equal to "merriami":
+
+```{r}
+combined$species == "merriami"
+data.frame(combined$species, combined$species == "merriami")
+```
+
+Some examples of conditional statements (logical statement AND logical statement we use `&`, OR `|`):
+
+```{r}
+1 == 1 & 1 < 2
+1 == 1 & 1 == 2
+1 == 1 | 1 == 2
+```
+```{r}
+combined$year == 1977 & combined$genus == "Dipodomys" & combined$species == "merriami"
+```
+
+## The basic `if` statement
+
+Complete the if statement so that if age_class is equal to “sapling” it sets y <- 10.
+What is the value of y?
+
+```{r}
+age_class <-  "sapling"
+ if (age_class == "sapling"){
+  y <- 10
+ }
+ y
+```
+
+`y` has a value of 10.
+
+## The if/else statement
+
+Complete the if statement so that if age_class is equal to “sapling” it sets y <- 10 and if age_class is equal to “seedling” it sets y <- 5.
+```{r}
+age_class <-  "seedling"
+ 
+if (age_class == "sapling"){
+    y <- 10 
+  } else {
+    y <- 5
+}
+
+y
+```
+
+## The if, else if, else statement
+
+This statement handles three or more choices:
+
+Complete the if statement so that if age_class is equal to “sapling” it sets y <- 10 and if age_class is equal to “seedling” it sets y <- 5 and if age_class is something else then it sets the value of y <- 0.
+
+```{r}
+age_class <-  "sapling"
+if (age_class == "sapling"){
+  y <- 10 
+} else if (age_class == "seedling") {
+  y <- 5
+} else if (age_class == "sapling") {
+  y <- "test"
+} else if (age_class != "seedling") {
+  y <-0
+}
+
+y
+```
+The most straightforward, less confusing way of doing the statement:
+
+```{r}
+
+if (age_class == "sapling"){
+  y <- 10 
+} else if (age_class == "seedling") {
+  y <- 5
+} else {
+  y <-0
+}
+```
+
+## Using if else inside functions
+
+Convert your conditional statement from the last exercise into a function called get_y, that takes age_class as an argument and returns y.
+
+```{r}
+name_for_your_function <- function(argument1, argument2, argument3) {
+  Body of the function
+}
+```
+
+```{r}
+get_y <- function(age_class = "adult") {
+  if (age_class == "sapling"){
+    y <- 10 
+  } else if (age_class == "seedling") {
+    y <- 5
+  } else {
+    y <-0
+  }
+  return(y)
+}
+
+```
+
+Question 2: run the function using the values "sapling”,
+“seedling”,
+“adult”,
+“mature”,
+“established”.
+
+```{r}
+get_y("sapling")
+get_y(age_class = "seedling")
+get_y("adult")
+get_y("mature")
+get_y("established")
+```
+
+Exercise 6:
+
+Question 1: Create a new function `get_mass_from_length_by_name()` that:
+takes two arguments, the `length` and the `name` of the dinosaur group.
+Inside this function use `if`/`else if`/`else` statements to check if the name is one of the following values and if so set a and b to the appropriate values (from Seebacher 2001):
+
+- Stegosauria: a = 10.95 and b = 2.64.
+- Theropoda: a = 0.73 and b = 3.63.
+- Sauropoda: a = 214.44 and b = 1.46.
+- If the name is not any of these values, the function should return NA. 
+
+Once the function has chosen the correct a and b values, have it run `get_mass_from_length()` with the appropriate values and return the estimated mass.
+
+
+Define the function `get_mass_from_length()` from the previous class:
+```{r}
+get_mass_from_length <- function(length, a, b){
+  mass <- a * length ^ b
+  return(mass)
+}
+```
+
+Create the function `get_mass_from_length_by_name()`:
+```{r}
+get_mass_from_length_by_name <- function(length, dinosaur_name) {
+  if (dinosaur_name == "Stegosauria") {
+    a <- 10.95
+    b <- 2.64
+  } else if (dinosaur_name == "Theropoda") {
+    a <- 0.73
+    b <- 3.63
+  } else if (dinosaur_name == "Sauropoda") {
+    a <- 214.44
+    b <- 1.46
+  } else {
+    message("No known estimation for ", dinosaur_name)
+    return(NA)
+  }
+  mass <- get_mass_from_length(length = length, a = a, b = b)
+  return(mass)
+}
+
+get_mass_from_length_by_name(dinosaur_name = "Luna", length = 10)
+```
+
+```{r}
+get_mass_from_length_by_name = function(length,name) {
+   if (name == "Stegosauria") {
+     a <- 10.95
+     b <- 2.64 
+   } else if (name == "Theropoda") {
+     a <- 0.73
+     b <- 3.63
+   } else if (name == "Sauropoda") {
+     a <- 214.44
+     b <- 1.46
+   } else { 
+    message("No known estimation for", name)
+   return(NA)
+   }
+ mass <- get_mass_from_length(length = length, a = a, b = b )
+ return(mass)
+}
+```
+
+
+

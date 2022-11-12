@@ -1,0 +1,78 @@
+---
+title: "Functions homework"
+author: "Luna L Sanchez Reyes"
+date: "2022-11-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Loda data table
+```{r}
+surveys <- read.csv(file = "../data-raw/surveys.csv")
+species <- read.csv(file = "../data-raw/species.csv")
+```
+
+
+2. Combine data tables
+```{r}
+library(dplyr)
+combined <- inner_join(surveys, species)
+head(combined)
+```
+
+3. Write a function
+
+Review of the skeleton of a function:
+
+```{r, eval = FALSE}
+name_of_function <- function(arguments, for, the, function, here, a, default_argument = default_value) {
+  Body of teh function()
+  create_new_variables <- c()
+  return(results)
+}
+```
+
+Write a function to create time series from the UHURU data set:
+```{r}
+function1 <- function(combined, genus_name = "Neotoma", species_name = "albigula") {
+  combined %>% 
+    select(year, genus, species) %>% 
+    filter(genus == genus_name, species == species_name) %>% 
+    group_by(year) %>% 
+    summarize(count = n()) -> data_frame_result
+
+  return(data_frame_result)
+}
+
+combined1 <- time_series <- function1
+```
+
+```{r}
+function1(combined)
+test1 <- function1(genus_name = "Dipodomys", combined = combined, species_name = "merriami")
+
+library(ggplot2)
+ggplot(test1, mapping = aes(x = year, y = count)) +
+  geom_point() +
+  geom_line()
+```
+
+"Chaetodipus" "penicillatus"
+
+```{r}
+chp_time_series <- combined1(combined = combined, genus_name = "Chaetodipus", species_name = "penicillatus")
+
+ggplot(chp_time_series, mapping = aes(x = year, y = count)) +
+  geom_point() +
+  geom_line()
+```
+
+
+
+
+
+
+
