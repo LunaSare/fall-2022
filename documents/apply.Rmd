@@ -1,0 +1,167 @@
+---
+title: "Apply functions"
+author: "Luna L Sanchez Reyes"
+date: "2022-11-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## Exercise 1: Calculating the mass of a bunch of dinosaurs
+
+Part 1a) Write a function `named mass_from_length_theropoda()` that takes length as an argument to get an estimate of mass for Theropoda dinosaurs. Use the equation mass <- 0.73 * length^3.63. 
+
+```{r}
+mass_from_length_theropoda <- function(length) {
+  mass <- 0.73 * length ^ 3.63
+  return(mass)
+}
+mass_from_length_theropoda(100)
+```
+
+Part 2b) Copy and run the code below to generate the object theropoda_lengths in your R environment. Pass the entire vector to your function (by giving it as value for the length argument); this calculates the mass for each length value in the vector `theropoda_lengths`.
+
+```{r}
+theropoda_lengths <- c(17.8013631070471, 20.3764452071665, 14.0743486294308, 25.65782386974, 26.0952008049675, 20.3111541103134, 17.5663244372533, 11.2563431277577, 20.081903202614, 18.6071626441984, 18.0991894513166, 23.0659685685892, 20.5798853467837, 25.6179254233558, 24.3714331573996, 26.2847248252537, 25.4753783544473, 20.4642089867304, 16.0738256364701, 20.3494171706583, 19.854399305869, 17.7889814608919, 14.8016421998303, 19.6840911485379, 19.4685885050906, 24.4807784966691, 13.3359960054899, 21.5065994598917, 18.4640304608411, 19.5861532398676, 27.084751999756, 18.9609366301798, 22.4829168046521, 11.7325716149514, 18.3758846100456, 15.537504851634, 13.4848751773738, 7.68561192214935, 25.5963348603783, 16.588285389794)
+```
+
+Calculate the mass for each length values in the vector `theropoda_lengths`
+```{r}
+c(1, 1.5, 3.7, 85) * 10
+
+mass_from_length_theropoda(length = theropoda_lengths)
+
+sapply(X = theropoda_lengths, FUN = mass_from_length_theropoda)
+```
+
+Part 2a) Create a new version of the function named mass_from_length() that uses the equation mass <- a * length^b and takes length, a and b as arguments. In the function arguments, set the default values for a to 0.73 and b to 3.63. If you run this function with just the length data from Part 1, you should get the same result as Part 1. 
+
+```{r}
+mass_from_length <- function(length, a = 0.73, b = 3.63) {
+  mass <- a * length ^ b
+  return(mass)
+}
+```
+
+Part 2b) Copy the data below into R and call your function using the vector of lengths from Part 1 (above) and these vectors of a and b values to estimate the mass for the dinosaurs using different values of a and b.
+
+```{r}
+library(magrittr)
+mass_from_length(length = theropoda_lengths) == mass_from_length_theropoda(length = theropoda_lengths)
+```
+
+
+```{r}
+a_values <- c(0.759, 0.751, 0.74, 0.746, 0.759, 0.751, 0.749, 0.751, 0.738, 0.768, 0.736, 0.749, 0.746, 0.744, 0.749, 0.751, 0.744, 0.754, 0.774, 0.751, 0.763, 0.749, 0.741, 0.754, 0.746, 0.755, 0.764, 0.758, 0.76, 0.748, 0.745, 0.756, 0.739, 0.733, 0.757, 0.747, 0.741, 0.752, 0.752, 0.748)
+
+b_values <- c(3.627, 3.633, 3.626, 3.633, 3.627, 3.629, 3.632, 3.628, 3.633, 3.627, 3.621, 3.63, 3.631, 3.632, 3.628, 3.626, 3.639, 3.626, 3.635, 3.629, 3.642, 3.632, 3.633, 3.629, 3.62, 3.619, 3.638, 3.627, 3.621, 3.628, 3.628, 3.635, 3.624, 3.621, 3.621, 3.632, 3.627, 3.624, 3.634, 10)
+```
+
+```{r}
+mass_from_length(length = theropoda_lengths, a = a_values, b = b_values)
+
+a_values * theropoda_lengths ^ b_values
+# investigate this, it shouldn't work?
+mapply(mass_from_length, theropoda_lengths, a_values, b_values)
+```
+
+Part 3. Create a data frame for this data using the code `dino_data <- data.frame(theropoda_lengths, a_values, b_values)`. Use `dplyr` to add a new masses column to this data frame (using `mutate()` and your function) and print the result to the console.
+
+```{r}
+dino_data <- data.frame(lengths = theropoda_lengths, as = a_values, bs = b_values)
+
+dino_data %>% 
+  mutate(masses = mass_from_length(length = lengths, a = as, b = bs))
+```
+
+
+## Exercise 2
+
+Part 1. Create a new version of your  `mass_from_length_theropoda()` function from Part 1 of Exercise 1 called `mass_from_length_max()`.
+This function should only calculate a mass if the value of length passed to the function is less than 20.
+If length is greater than 20, return `NA` instead.
+
+```{r}
+mass_from_length_max <- function(length) {
+  if (length < 20) {
+    mass <- 0.73 * length ^ 3.63
+  } else {
+    mass <- NA
+  }
+  return(mass)
+}
+```
+
+Part 2. Use sapply() and this new function to estimate the mass for the `theropoda_lengths` data from Exercise 1.
+
+```{r}
+sapply(X = theropoda_lengths, FUN = mass_from_length_max)
+```
+
+
+Exercise 3: 
+
+Part 1
+```{r}
+dino_lengths <- read.csv(file = "../data-raw/dinosaur_lengths.csv")
+head(dino_lengths)
+```
+
+Part 2.
+
+```{r}
+get_mass_from_length_by_name <- function(length, name) {
+  if (name == "Stegosauria") {
+    a <- 10.95
+    b <- 2.64
+  } else if (name == "Theropoda") {
+    a <- 0.73
+    b <- 3.63
+  } else if (name == "Sauropoda") {
+    a <- 214.44
+    b <- 1.46
+  } else {
+    a <- NA
+    b <- NA
+  }
+
+  mass <- a * length ^ b
+  return(mass)
+  
+}
+```
+
+
+Part 3. Use `get_mass_from_length_by_name()` and `mapply()` to calculate the estimated mass for each dinosaur. You’ll need to pass the data to `mapply()` as single vectors or columns, not the whole data frame.
+
+```{r}
+class(dino_lengths)
+colnames(dino_lengths)
+class(dino_lengths$species)
+is.vector(dino_lengths$species)
+is.vector(dino_lengths)
+mapply(FUN = get_mass_from_length_by_name, length = dino_lengths$lengths, name = dino_lengths$species)
+```
+If I try to feed the whole data frame as input:
+
+```r
+mapply(FUN = get_mass_from_length_by_name, length = dino_lengths, name = dino_lengths)
+
+Error in if (name == "Stegosauria") { : the condition has length > 1
+```
+
+Part 4. Using `dplyr`, add a new masses column to the data frame (using `rowwise()`, `mutate()` and your function) and print the result to the console.
+
+```{r}
+
+```
+
+Part 5. Using `ggplot2`, make a histogram of dinosaur masses with one subplot for each species (remember `facet_wrap()`).
+
+```{r}
+
+```
+
