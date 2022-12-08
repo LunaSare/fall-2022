@@ -31,9 +31,9 @@ if (is.element("surveys.csv", survey.list)) {
   print("The file surveys.csv is already downladed")
 } else if (!is.element("surveys.csv", survey.list)) {
   print("The file is not downloaded!")
-  a.  downloads it from https://ndownloader.figshare.com/files/2292172 using download.file(),
-  b. loads the file into a data frame and 
-  c. displays the first few rows using the head() function.  
+  # a.  downloads it from https://ndownloader.figshare.com/files/2292172 using download.file(),
+  # b. loads the file into a data frame and 
+  # c. displays the first few rows using the head() function.  
 }
 
 help("download.file")
@@ -54,7 +54,7 @@ head(surveys_table)
 ```{r}
 
 if (!is.element("surveys.csv", list.files("../data-raw/"))) {
-  dowload.file(url = "https://ndownloader.figshare.com/files/2292172",
+  download.file(url = "https://ndownloader.figshare.com/files/2292172",
               destfile = "../data-raw/surveys-download.csv")
 
   surveys <- read.csv(file = "../data-raw/surveys-download.csv")
@@ -96,7 +96,7 @@ reading_csv <- function(file_name, file_link) {
     
   }
   
-  return(result)
+  # return(result)
 }
 ```
 
@@ -149,7 +149,7 @@ collar_data_files
 
 4. Use a loop to load each of these files into R and make a line plot (using geom_path()) for each file with long on the x axis and lat on the y axis. Graphs, like other types of output, won’t display inside a loop unless you explicitly display them, so you need to put your ggplot() command inside a print() statement. Include the name of the file in the graph as the graph title using labs().
 
-```{r}
+```{r eval = FALSE}
 # load file:
 read.csv(file = "../data-raw/individual_collar_data/collar-data-J10-2016-02-26.txt")
 str_c("apple", "1", "seven")
@@ -171,15 +171,14 @@ for (i in collar_data_files) {
 
 Solution 1, using empty vectors
 ```{r}
-
-?vector
+# ?vector
 # empty vectors
 all_min <- vector()
 all_max <- vector()
 length(all_min)
 for (i in collar_data_files) {
   print(i)
-  file_name <- str_c("../data-raw/", i)
+  file_name <- str_c("../data-raw/individual_collar_data/", i)
   collar_data_table <- read.csv(file = file_name)
   min_lat <- min(collar_data_table[, "lat"])
   # min_lat <- min(collar_data_table$lat)
