@@ -1,0 +1,65 @@
+---
+title: "Review - uhuru data set"
+author: "Luna L Sanchez Reyes"
+date: "2022-12-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# A function for the UHURU data set
+
+The UHURU experiment in Kenya has conducted a survey of Acacia drepanolobium among each of their ungulate exclosure treatments. Data for the survey is available here in a tab delimited ("\t") format. Each of the individuals surveyed were measured for branch circumference (CIRC) and canopy width (AXIS1) and was identified for the associated ant-symbiont species present (ANT).
+
+The following function takes a subset of the data for a given ANT symbiont and evaluates the linear regression (lm()) for a given relationship, returning the symbiont species used for the subset and the r2 of the model.
+
+```{r}
+report_rsquared <- function(data, species, formula){
+  subset <- dplyr::filter(data, ANT == species)
+  test <- lm(formula, data = subset)
+  rsquared <- round(summary(test)$r.squared, 3)
+  output <- data.frame(species = species, r2 = rsquared)
+  return(output)
+}
+```
+
+Explain what each line of code in the body of the function is doing. Add the explanations to your Rmd file as comments, before each line of code.
+
+Execute the function using the UHURU data and specifying species = "CM" and formula = "AXIS1~CIRC".
+```{r}
+uhuru_data <- read.csv(file = "https://esapubs.org/archive/ecol/E095/064/ACACIA_DREPANOLOBIUM_SURVEY.txt", sep = "\t")
+head(uhuru_data)
+report_rsquared(data = uhuru_data, species = "CM", formula = "AXIS1~CIRC")
+```
+
+3. Modify the function so that it also determines if() the rsquared is significant based on a given threshold. The modified function should return() the species, rsquared and a significance value of "S" for a relationship with an rsquared > threshold or "NS" for an rsquared < threshold.
+
+```{r}
+report_rsquared_sign <- function(data, species, formula, threshold){
+
+  subset <- dplyr::filter(data, ANT == species)
+  test <- lm(formula, data = subset)
+  rsquared <- round(summary(test)$r.squared, 3)
+  if (rsquared > threshold) {
+     print("Significant")
+     sign <- "S"
+   } else if (rsquared < threshold) {
+     print("Non significant")
+     sign <- "NS"
+   }  
+ 
+  output <- data.frame(species = species, r2 = rsquared, significance = sign)
+  return(output)
+}
+```
+
+4. Execute your modified function for species of "CM", "CS", and "TP" given a threshold = 0.667.
+
+```{r}
+report_rsquared_sign(data = uhuru_data, species = "CM", threshold = 0.667, formula = "AXIS1~CIRC")
+```
+
+
