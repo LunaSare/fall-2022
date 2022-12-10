@@ -95,3 +95,81 @@ convert_energy_units(52500, "KJ", "J")
 ```
 c) How many ergs (ERG) are there in one kilocalorie. Since we didn’t include the erg conversion this should trigger our ‘don’t know how to convert’ message.
 
+5. Make the function more efficient, and instead of writing an individual conversion between each of the different units (which requires 12 if statements) you could choose to convert all of the input units to a common scale and then convert from that common scale to the output units. This approach is especially useful if you need to add new units later.
+
+Solution1: Creating two functions independently and then combining them
+```{r}
+# difference between print and return inside function
+convert_to_joules <- function(energy_value, input_unit){
+   if (str_detect(input_unit, "KJ")) {
+     J <- energy_value * 1000
+   } else if (input_unit == "CAL") {
+     J <- energy_value * 4.1868 
+     message("Input units are CAL")
+   } else if (input_unit == "KCAL") {
+     J <- energy_value * 4186.8
+     message("Input units are KCAL")
+   } else { 
+     message("Sorry, I don’t know how to convert", input_unit)
+     # return(NA)
+     J <- NA
+   }
+    # print(list(initial_energy_value=energy_value, input_unit, result = J))
+    return(J)
+}
+```
+
+```{r}
+result <- convert_to_joules(200, "CAL")
+result
+```
+
+```{r}
+convert_energy_efficient <- function(energy_value, input_unit, output_unit){
+  # convert input to J 
+  energy_in_joules <- convert_to_joules(energy_value, input_unit)
+    
+  # convert Joules to output_unit
+  message("output unit is ", output_unit)
+  if (str_detect(output_unit, "KJ")) {
+     energy <- energy_in_joules / 1000
+   } else if (output_unit == "CAL") {
+     energy <- energy_in_joules / 4.1868 
+     #print("CAL")
+   } else if (output_unit == "KCAL") {
+     energy <- energy_in_joules / 4186.8
+     #print("this should be KCAL")
+   } else { 
+     message("Sorry, I don’t know how to convert", input_unit)
+     #print(str_c("sorry again, cannot convert from", input_unit))
+     return(NA)
+   }
+  
+  return(energy)
+  
+}
+```
+
+```{r}
+convert_energy_efficient(1200, "CAL", output_unit = "KCAL")
+
+#str_c("Luna", "is", "happy", "!")
+```
+Solution2: Writing all the code inside one single function:
+
+
+
+```{r}
+max(1:10)
+```
+```{r}
+x <- max(1:10)
+x
+
+years <- 23:32
+sizes <- c(1.1, 3, 100, 23, 345, 17, 2.5, 7.8, 100, 134)
+
+min(years)
+max(years)
+sizes[which.min(years)]
+```

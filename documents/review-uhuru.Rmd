@@ -62,4 +62,32 @@ report_rsquared_sign <- function(data, species, formula, threshold){
 report_rsquared_sign(data = uhuru_data, species = "CM", threshold = 0.667, formula = "AXIS1~CIRC")
 ```
 
+Review of Azul's answer:
+```{r}
+report_rsquared_modified <- function(data, species, formula, threshold) {
+  subset <- dplyr::filter(data, ANT == species)
+  test <- lm(formula, data = subset)
+  rsquared <- round(summary(test)$r.squared, 3)
+
+  if (rsquared > threshold ){
+     print("S")
+  } else if (rsquared < threshold)
+   print("NS") 
+  output <- data.frame(species = species, r2 = rsquared)
+  threshold <- #Threshold a numeric array or vector
+  return(output)
+}
+```
+
+```{r}
+report_rsquared_modified(data = uhuru_data, species = "CM", threshold = 0.667, formula = "AXIS1~CIRC")
+```
+
+
+
+
+
+
+
+
 
